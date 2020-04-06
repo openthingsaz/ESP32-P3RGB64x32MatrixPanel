@@ -1,4 +1,4 @@
-# P3RGB64x32MatrixPanel library for ESP32
+# RGB64x32MatrixPanel library for ESP32
 
 ESP32 Arduino library for P3 64x32 RGB LED Matrix Panel.
 
