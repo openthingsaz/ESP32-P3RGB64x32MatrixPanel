@@ -92,31 +92,152 @@ boolean BufferSerial::recv_callback(BluetoothSerial* pSerialBT)
   return ret;
 }
 
-void cmd_process(char cmd, char* data, int len)
+void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, char* data, int len)
 {
   switch (cmd) {
-    case SET_TEX : 
+    case SET_TEXT : 
     {
-      /* 
-      -6 is font, background color, 
-      For strings, +1 it must insert null at the end of the string.
-      */
-      int textLen = len-6;
-      int textNullLen = textLen+1;
+      int textLen = len-1-3-3; // -1 is font size, -3 is colorFont[3], -3 is colorScr[3], Only Text Box Data
+      int textNullLen = textLen+1; /* For strings, +1 it must insert null at the end of the string. */
       char* textData = (char*)malloc(textNullLen);
-      char colorFont[3];
-      char colorBackground[3];
+      char colorFont[3]; 
+      char colorScr[3];
+      uint8_t fontSize = 0; 
+      String textBoxData;
 
-      memcpy(colorFont, data + textLen, sizeof(colorFont));
-      memcpy(colorBackground, data + textLen + sizeof(colorFont), sizeof(colorBackground));
+      ledpannel->set_scroll_off(); /* scrolling text off */
+      memcpy(textData, data, textNullLen);
+      textData[textLen] = 0;
+      textBoxData = textData;
+      fontSize = (uint8_t)data[textLen];
+      memcpy(colorFont, data + textLen + sizeof(fontSize), sizeof(colorFont));
+      memcpy(colorScr, data + textLen + sizeof(fontSize) + sizeof(colorFont), sizeof(colorScr));
+      Serial.print("Text :"); Serial.println(textBoxData);
+      Serial.print("Text Size:"); Serial.println(fontSize);
+      Serial.print("Font Color :"); Serial.print(colorFont[0], HEX); Serial.print(" "); Serial.print(colorFont[1], HEX); Serial.print(" "); Serial.print(colorFont[2], HEX); Serial.print(" ");
+      Serial.print("Scr Color :"); Serial.print(colorScr[0], HEX); Serial.print(" "); Serial.print(colorScr[1], HEX); Serial.print(" "); Serial.print(colorScr[2], HEX); Serial.println(" ");
+
+      
+      matrix->fillScreen(matrix->color555(colorScr[0], colorScr[1], colorScr[2]));
+      matrix->setTextSize(fontSize);     // size 1 == 8 pixels high
+      matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+      matrix->setCursor(0, 15 - (fontSize * 3));    // start at top left, with 8 pixel of spacing
+      matrix->setTextColor(matrix->color555(colorFont[0], colorFont[1], colorFont[2]));
+      matrix->print(textBoxData);
+
+      free(textData);
+      break;
+    }
+    case SET_TEXT_ACTION : 
+    {
+      int textLen = len-1-3-3-3; // -1 is font size, -3 is colorFont[3], -3 is colorScr[3], -3 is Action Datas, Only Text Box Data
+      int textNullLen = textLen+1; /* For strings, +1 it must insert null at the end of the string. */
+      char* textData = (char*)malloc(textNullLen);
+      char colorFont[3]; 
+      char colorScr[3]; 
+      int colorRgbFont;
+      int colorRgbScr;
+      char actionCmd; 
+      uint8_t fontSize = 0; 
+      unsigned short actionTime;
+
       String textBoxData;
       memcpy(textData, data, textNullLen);
       textData[textLen] = 0;
       textBoxData = textData;
+      fontSize = (uint8_t)data[textLen];
+      
+      memcpy(colorFont, data + textLen + sizeof(fontSize), sizeof(colorFont));
+      memcpy(colorScr, data + textLen + sizeof(fontSize) + sizeof(colorFont), sizeof(colorScr));
+      actionCmd = data[textLen + sizeof(fontSize) + sizeof(colorFont) + sizeof(colorScr)];
+      actionTime = actionTime | data[textLen + sizeof(fontSize) + sizeof(colorFont) + sizeof(colorScr) + 1] << 8;
+      actionTime = actionTime | data[textLen + sizeof(fontSize) + sizeof(colorFont) + sizeof(colorScr) + 2];
+
       Serial.print("Text :"); Serial.println(textBoxData);
-      Serial.print("Font Color :"); Serial.print(colorFont[0], HEX); Serial.print(" "); Serial.print(colorFont[1], HEX); Serial.print(" "); Serial.print(colorFont[2], HEX); Serial.print(" ");
-      Serial.print("Background Color :"); Serial.print(colorBackground[0], HEX); Serial.print(" "); Serial.print(colorBackground[1], HEX); Serial.print(" "); Serial.print(colorBackground[2], HEX); Serial.print(" ");
+      Serial.print("Font Color :"); Serial.print(colorFont[0], HEX); Serial.print(" "); Serial.print(colorFont[1], HEX); Serial.print(" "); Serial.print(colorFont[2], HEX); Serial.println(" ");
+      Serial.print("Scr Color :"); Serial.print(colorScr[0], HEX); Serial.print(" "); Serial.print(colorScr[1], HEX); Serial.print(" "); Serial.print(colorScr[2], HEX); Serial.println(" ");
+      Serial.print("Action Command :"); Serial.println(actionCmd, DEC); 
+      Serial.print("Action Time :"); Serial.println(actionTime, DEC); 
+
+      //matrix->fillScreen(matrix->color444(0, 0, 0));
+      // draw some text!
+      colorRgbFont = (int)(colorFont[0] << 16 | colorFont[1] << 8 | colorFont[2]);
+      colorRgbScr = (int)(colorScr[0] << 16 | colorScr[1] << 8 | colorScr[2]);
+      
+      if(actionCmd == CMD_ACT_RIGHT_LEFT)
+        ledpannel->set_scroll_text(textBoxData, textBoxData.length(), fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_RIGHT_LEFT, actionTime);        
+      else if(actionCmd == CMD_ACT_LEFT_RIGHT)
+        ledpannel->set_scroll_text(textBoxData, textBoxData.length(), fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_LEFT_RIGHT, actionTime);
+      else if(actionCmd == CMD_ACT_BLINK)
+        ledpannel->set_scroll_text(textBoxData, textBoxData.length(), fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_LEFT_RIGHT, actionTime);
+
       free(textData);
+      break;
+    }
+    case SET_DRAW : 
+    {
+      byte pointX;
+      byte pointY;
+      byte colorFont[3];
+      int dataLen = len;
+      char tempData[5];
+
+      for(int i=0; i<(dataLen/5); i++)
+      {
+        memset(tempData, 0, sizeof(tempData));
+        memcpy(tempData, data + (i*5), 5);
+        pointX = (byte)tempData[0];
+        pointY = (byte)tempData[1];
+        memcpy(colorFont, tempData + sizeof(pointX) + sizeof(pointY), sizeof(colorFont));
+
+        Serial.println("");
+        Serial.print("dataLen : "); Serial.println(dataLen);
+        Serial.print("Point X : "); Serial.println(pointX);
+        Serial.print("Point Y : "); Serial.println(pointY);
+        Serial.print("Font Color :"); Serial.print(colorFont[0], HEX); Serial.print(" "); Serial.print(colorFont[1], HEX); Serial.print(" "); Serial.print(colorFont[2], HEX); Serial.print(" "); 
+        Serial.println("");
+        matrix->drawPixel(pointX, pointY, matrix->color444(colorFont[0], colorFont[1], colorFont[2]));
+      }
+      break;
+    }
+    
+    case SET_SCR_CLEAR : 
+    {
+      Serial.println("screen clear");
+      matrix->fillScreen(matrix->color444(0, 0, 0)); 
+      break;
+    }
+    case SET_SCR_COLOR : 
+    {
+      Serial.println("screen clolor");
+      byte ScrColor[3];
+      memcpy(ScrColor, data, sizeof(ScrColor));      
+      matrix->fillScreen(matrix->color555(ScrColor[0], ScrColor[1], ScrColor[2])); 
+      break;
+    }
+    case SET_EXAM : 
+    {
+      if (data[0] == 0x01){
+        ledpannel->print_exam_1();
+      }
+      else if (data[0] == 0x02){
+        ledpannel->print_exam_2();
+      }
+      else if (data[0] == 0x03){
+        ledpannel->print_exam_3();
+      }
+      else if (data[0] == 0x04){
+        ledpannel->print_exam_4();
+      }
+      else if (data[0] == 0x05){
+        ledpannel->print_exam_5();
+      }
+      else if (data[0] == 0x06){
+        ledpannel->print_exam_6();
+      }
+      else if (data[0] == 0x07){
+        ledpannel->print_exam_7();
+      }
       break;
     }
     default:
@@ -125,7 +246,7 @@ void cmd_process(char cmd, char* data, int len)
   }
 }
 
-void BufferSerial::process(BluetoothSerial* pSerialBT)
+void BufferSerial::process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, BluetoothSerial* pSerialBT)
 { 
   uint16_t serCrc = 0;
   bool recv_end = false;
@@ -238,7 +359,7 @@ void BufferSerial::process(BluetoothSerial* pSerialBT)
           if (crc == 0) // Crc OK
           {
             cmd = packet[0];
-            cmd_process(cmd, &packet[1], dataLen-1);
+            cmd_process(matrix, ledpannel, cmd, &packet[1], dataLen-1); // -1 is command
           }
           else {
             //send NACK

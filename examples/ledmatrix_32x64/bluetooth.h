@@ -14,8 +14,9 @@ private:
 public:
 	void setup();
 	int check();
-	void run();
+	void run(P3RGB64x32MatrixPanel* matrix);
     void led_setup(P3RGB64x32MatrixPanel* matrix);
+	void command_excute(uint8_t mode);
 };
 
 #endif

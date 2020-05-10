@@ -1,4 +1,3 @@
-
 /* Derived from Adafruit RGB_matrix_Panel library */
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <P3RGB64x32MatrixPanel.h>
@@ -7,7 +6,8 @@
 // constructor with default pin wiring
 
 Bluetooth bluetooth;
-P3RGB64x32MatrixPanel matrix(25, 26, 27, 21, 22, 0, 15, 32, 33, 12, 16, 17, 4);
+//P3RGB64x32MatrixPanel matrix(25, 26, 27, 21, 22, 0, 15, 32, 33, 12, 16, 17, 4);
+P3RGB64x32MatrixPanel matrix;
 
 void setup() {
   
@@ -26,8 +26,7 @@ void setup() {
   }
 }
 
-
 void loop() 
 {
-  bluetooth.run();
+  bluetooth.run((P3RGB64x32MatrixPanel*)&matrix);
 }
