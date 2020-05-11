@@ -28,7 +28,6 @@ void Bluetooth::led_setup(P3RGB64x32MatrixPanel* matrix)
 	ledpannel.setup(matrix);
 }
 
-
 void Bluetooth::command_excute(uint8_t mode)
 {
   #define MODE_LOOP 1

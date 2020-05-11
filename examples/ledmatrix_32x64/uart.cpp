@@ -105,7 +105,7 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       uint8_t fontSize = 0; 
       String textBoxData;
 
-      ledpannel->set_scroll_off(); /* scrolling text off */
+      
       memcpy(textData, data, textNullLen);
       textData[textLen] = 0;
       textBoxData = textData;
@@ -117,7 +117,7 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       Serial.print("Font Color :"); Serial.print(colorFont[0], HEX); Serial.print(" "); Serial.print(colorFont[1], HEX); Serial.print(" "); Serial.print(colorFont[2], HEX); Serial.print(" ");
       Serial.print("Scr Color :"); Serial.print(colorScr[0], HEX); Serial.print(" "); Serial.print(colorScr[1], HEX); Serial.print(" "); Serial.print(colorScr[2], HEX); Serial.println(" ");
 
-      
+      ledpannel->set_action_off(); /* scrolling text off */
       matrix->fillScreen(matrix->color555(colorScr[0], colorScr[1], colorScr[2]));
       matrix->setTextSize(fontSize);     // size 1 == 8 pixels high
       matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
@@ -141,6 +141,7 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       uint8_t fontSize = 0; 
       unsigned short actionTime;
 
+
       String textBoxData;
       memcpy(textData, data, textNullLen);
       textData[textLen] = 0;
@@ -163,13 +164,17 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       // draw some text!
       colorRgbFont = (int)(colorFont[0] << 16 | colorFont[1] << 8 | colorFont[2]);
       colorRgbScr = (int)(colorScr[0] << 16 | colorScr[1] << 8 | colorScr[2]);
-      
+      ledpannel->set_action_off(); /* previous scrolling text off */
       if(actionCmd == CMD_ACT_RIGHT_LEFT)
-        ledpannel->set_scroll_text(textBoxData, textBoxData.length(), fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_RIGHT_LEFT, actionTime);        
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_RIGHT_LEFT, actionTime);        
       else if(actionCmd == CMD_ACT_LEFT_RIGHT)
-        ledpannel->set_scroll_text(textBoxData, textBoxData.length(), fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_LEFT_RIGHT, actionTime);
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_LEFT_RIGHT, actionTime);
+      else if(actionCmd == CMD_ACT_TOP_DOWN)
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 5, 0, CMD_ACT_TOP_DOWN, actionTime);  
+      else if(actionCmd == CMD_ACT_DOWN_TOP)
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 5, 32, CMD_ACT_DOWN_TOP, actionTime);  
       else if(actionCmd == CMD_ACT_BLINK)
-        ledpannel->set_scroll_text(textBoxData, textBoxData.length(), fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_LEFT_RIGHT, actionTime);
+        ledpannel->set_blink_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 5, 15 - (fontSize * 3), CMD_ACT_BLINK, actionTime);
 
       free(textData);
       break;

@@ -22,9 +22,12 @@ private:
 
 public:
     void setup(P3RGB64x32MatrixPanel* mat);
-    void scroll_text(String text, uint8_t textLen, uint8_t textFontSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
-    void set_scroll_text(String text, uint8_t textLen, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
-    void set_scroll_off(void);
+    void scroll_text(String text, uint8_t textFontSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
+    void set_scroll_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
+    void set_blink_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
+    void blink_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
+
+    void set_action_off(void);
     uint16_t get_display_width(void);
     void command_excute(void);
     void print_exam_1(void);

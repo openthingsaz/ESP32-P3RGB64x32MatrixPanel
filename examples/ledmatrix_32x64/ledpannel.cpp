@@ -35,27 +35,21 @@ uint16_t LedPannel::get_display_width(void)
 void LedPannel::command_excute(void)
 {
   if(scrollText.length() != 0)
-    scroll_text(scrollText, displayTextLen, displayTextSize, displayFontColor, displayColor, displayStartX, displayStartY, scrollCmd, displayTime);
+    scroll_text(scrollText, displayTextSize, displayFontColor, displayColor, displayStartX, displayStartY, scrollCmd, displayTime);
+  
+  if(blinkText.length() != 0) {
+    blink_text(blinkText, displayTextSize, displayFontColor, displayColor, displayStartX, displayStartY, scrollCmd, displayTime);
+    Serial.print("blink text :"); Serial.println(blinkText);
+  }
+
+  //Serial.print("blink text :"); Serial.println(blinkText);
+
 }
 
-/*
-void LedPannel::set_blink_text(String text, uint8_t textLen, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
+
+void LedPannel::set_blink_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
 {
     blinkText = text;
-    displayTextLen = textLen;
-    displayTextSize = textSize;
-    displayFontColor = fontColor;
-    displayColor = scrColor;
-    displayStartX = startX;
-    displayStartY = startY;
-    
-    displayTime = time;
-}
-*/
-void LedPannel::set_scroll_text(String text, uint8_t textLen, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
-{
-    scrollText = text;
-    displayTextLen = textLen;
     displayTextSize = textSize;
     displayFontColor = fontColor;
     displayColor = scrColor;
@@ -64,12 +58,9 @@ void LedPannel::set_scroll_text(String text, uint8_t textLen, uint8_t textSize, 
     scrollCmd = cmd;
     displayTime = time;
 }
-void LedPannel::set_scroll_off(void)
-{
-  scrollText = "";
-}
 
-void LedPannel::scroll_text(String text, uint8_t textLen, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
+
+void LedPannel::blink_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
 {
   uint8_t w = 0;
   int pos = 0;
@@ -78,6 +69,74 @@ void LedPannel::scroll_text(String text, uint8_t textLen, uint8_t textSize, int 
   uint8_t green;
   uint8_t blue;
 
+  red = (uint8_t)(scrColor >> 16);
+  green = (uint8_t)(scrColor >> 8);
+  blue = (uint8_t)(scrColor >> 0);
+  matrix->fillScreen(matrix->color555(red, green, blue));
+  Serial.print("Screen Color :"); Serial.print(red, HEX); Serial.print(" "); Serial.print(green, HEX); Serial.print(" "); Serial.print(blue, HEX); Serial.println(" ");
+  matrix->setTextSize(textSize);     // size 1 == 8 pixels high
+  matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+  
+  Serial.print("Text Color :"); Serial.print(red, HEX); Serial.print(" "); Serial.print(green, HEX); Serial.print(" "); Serial.print(blue, HEX); Serial.println(" ");
+  
+  Serial.println("blink"); 
+  for(int i=0; i<2; i++) 
+  {
+    red = (uint8_t)(scrColor >> 16);
+    green = (uint8_t)(scrColor >> 8);
+    blue = (uint8_t)(scrColor >> 0);
+    matrix->fillScreen(matrix->color555(red, green, blue));
+    matrix->setCursor(startX, startY);    // start at top left, with 8 pixel of spacing
+    if(i == 0)
+    {
+      red = (uint8_t)(fontColor >> 16);
+      green = (uint8_t)(fontColor >> 8);
+      blue = (uint8_t)(fontColor >> 0);
+      matrix->setTextColor(matrix->color555(red, green, blue));
+      matrix->print(text);
+    }
+    else
+    {
+      red = 0;
+      green = 0;
+      blue = 0;
+      matrix->setTextColor(matrix->color555(red, green, blue));
+      matrix->print(text);
+    }
+    delay(time); 
+  }
+  
+}
+
+
+void LedPannel::set_scroll_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
+{
+    scrollText = text;
+    displayTextSize = textSize;
+    displayFontColor = fontColor;
+    displayColor = scrColor;
+    displayStartX = startX;
+    displayStartY = startY;
+    scrollCmd = cmd;
+    displayTime = time;
+}
+void LedPannel::set_action_off(void)
+{
+  scrollText = "";
+  blinkText = "";
+}
+
+void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time)
+{
+  uint8_t w = 0;
+  int pos = 0;
+  int tmp;
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
+  uint8_t textLen;
+
+  textLen = text.length();
   red = (uint8_t)(scrColor >> 16);
   green = (uint8_t)(scrColor >> 8);
   blue = (uint8_t)(scrColor >> 0);
@@ -121,6 +180,38 @@ void LedPannel::scroll_text(String text, uint8_t textLen, uint8_t textSize, int 
       }
       delay(time); 
    }
+ }
+ else if(cmd == CMD_ACT_TOP_DOWN)
+ {
+    for(pos=startY; pos <= 32; ++pos) 
+    {
+      red = (uint8_t)(scrColor >> 16);
+      green = (uint8_t)(scrColor >> 8);
+      blue = (uint8_t)(scrColor >> 0);
+      matrix->fillScreen(matrix->color555(red, green, blue));
+      matrix->setCursor(startX, pos);    // start at top left, with 8 pixel of spacing
+      for(int i=0; i<textLen; i++)
+      {
+        matrix->print(text[i]);
+      }
+      delay(time); 
+    }
+ }
+ else if(cmd == CMD_ACT_DOWN_TOP)
+ {
+    for(pos=startY; pos >= 0; --pos) 
+    {
+      red = (uint8_t)(scrColor >> 16);
+      green = (uint8_t)(scrColor >> 8);
+      blue = (uint8_t)(scrColor >> 0);
+      matrix->fillScreen(matrix->color555(red, green, blue));
+      matrix->setCursor(startX, pos);    // start at top left, with 8 pixel of spacing
+      for(int i=0; i<textLen; i++)
+      {
+        matrix->print(text[i]);
+      }
+      delay(time); 
+    }
  }
 
 }
