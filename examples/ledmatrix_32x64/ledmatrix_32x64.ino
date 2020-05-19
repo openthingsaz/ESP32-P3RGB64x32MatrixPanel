@@ -3,11 +3,14 @@
 #include <P3RGB64x32MatrixPanel.h>
 #include "bluetooth.h"
 #include "ledpannel.h"
+
+
 // constructor with default pin wiring
 
 Bluetooth bluetooth;
-//P3RGB64x32MatrixPanel matrix(25, 26, 27, 21, 22, 0, 15, 32, 33, 12, 16, 17, 4);
-P3RGB64x32MatrixPanel matrix;
+P3RGB64x32MatrixPanel matrix(25, 26, 27, 21, 22, 0, 15, 32, 33, 12, 16, 17, 4);
+//P3RGB64x32MatrixPanel matrix;
+
 
 void setup() {
   
@@ -24,6 +27,7 @@ void setup() {
     }
     delay(500);
   }
+   
 }
 
 void loop() 
