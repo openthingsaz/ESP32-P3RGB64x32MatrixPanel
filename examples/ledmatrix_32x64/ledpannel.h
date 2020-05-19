@@ -37,6 +37,7 @@ public:
     void print_exam_5(void);
     void print_exam_6(void);
     void print_exam_7(void);
+    void print_exam_8(void);
 };
 
 #endif

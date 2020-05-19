@@ -2,7 +2,10 @@
 #include "ledpannel.h"
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <P3RGB64x32MatrixPanel.h>
+#include <Fonts/BMHANNAPro8.h>
 #include "command.h"
+
+
 
 // Input a value 0 to 24 to get a color value.
 // The colours are a transition r - g - b - back to r.
@@ -23,7 +26,13 @@ void LedPannel::setup(P3RGB64x32MatrixPanel* mat)
     matrix = mat;
     matrix->begin();
     // fill the screen with 'black'
-    matrix->fillScreen(matrix->color444(0, 0, 0));    
+    matrix->fillScreen(matrix->color444(0, 0, 0));  
+    matrix->setFont(&BMHANNAPro8pt8b);  
+    matrix->setTextSize(1);     // size 1 == 8 pixels high
+    matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+    matrix->setCursor(3, 10);    // start at top left, with 8 pixel of spacing
+    matrix->setTextColor(matrix->color444(7, 0, 0));
+    matrix->setAttribute(UTF8_ENABLE , true);
 }
 
 uint16_t LedPannel::get_display_width(void)
@@ -151,7 +160,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
   Serial.print("Text Color :"); Serial.print(red, HEX); Serial.print(" "); Serial.print(green, HEX); Serial.print(" "); Serial.print(blue, HEX); Serial.println(" ");
  if(cmd == CMD_ACT_RIGHT_LEFT)
  {
-    for(pos=startX; pos >= -((textLen * 6)*textSize); pos--) 
+    for(pos=startX; pos >= -((textLen * 4)*textSize); pos--) 
     {
       red = (uint8_t)(scrColor >> 16);
       green = (uint8_t)(scrColor >> 8);
@@ -167,7 +176,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
  }
  else if(cmd == CMD_ACT_LEFT_RIGHT)
  {
-   for(pos=-((textLen * 6)*textSize); pos <= startX; pos++) 
+   for(pos=-((textLen * 4)*textSize); pos <= startX; pos++) 
    {
       red = (uint8_t)(scrColor >> 16);
       green = (uint8_t)(scrColor >> 8);
@@ -183,7 +192,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
  }
  else if(cmd == CMD_ACT_TOP_DOWN)
  {
-    for(pos=startY; pos <= 32; ++pos) 
+    for(pos=startY; pos <= (32 + (textSize * 8)); ++pos) 
     {
       red = (uint8_t)(scrColor >> 16);
       green = (uint8_t)(scrColor >> 8);
@@ -199,7 +208,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
  }
  else if(cmd == CMD_ACT_DOWN_TOP)
  {
-    for(pos=startY; pos >= 0; --pos) 
+    for(pos=startY; pos >= -(textSize * 8); --pos) 
     {
       red = (uint8_t)(scrColor >> 16);
       green = (uint8_t)(scrColor >> 8);
@@ -430,5 +439,26 @@ void LedPannel::print_exam_7(void)
   matrix->setTextColor(matrix->color444(7,0,4));
   matrix->print('5');
   matrix->setTextColor(matrix->color444(7,0,4));
-  matrix->print('1');  
+  matrix->print('1');
+  
+}
+
+
+
+void LedPannel::print_exam_8(void) // japan language hiragana
+{
+  //matrix->setFont(&BMHANNAPro8pt8b);
+  matrix->setTextSize(1);     // size 1 == 8 pixels high
+  matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+  matrix->setCursor(3, 3);    // start at top left, with 8 pixel of spacing
+  matrix->setTextColor(matrix->color444(7, 0, 0));
+  matrix->setAttribute(UTF8_ENABLE , true);
+
+  matrix->setCursor(1, 10);
+  String konnichiwa = "가나다라";  // Define a string using hiragana script
+  matrix->println(konnichiwa);          // Print string
+  konnichiwa = "간난바";  // Define a string using hiragana script
+  matrix->println(konnichiwa);          // Print string
+  delay(3000);
+
 }

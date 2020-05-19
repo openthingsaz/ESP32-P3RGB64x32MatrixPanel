@@ -121,7 +121,7 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       matrix->fillScreen(matrix->color555(colorScr[0], colorScr[1], colorScr[2]));
       matrix->setTextSize(fontSize);     // size 1 == 8 pixels high
       matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
-      matrix->setCursor(0, 15 - (fontSize * 3));    // start at top left, with 8 pixel of spacing
+      matrix->setCursor(0, (fontSize * 11));    // start at top left, with 8 pixel of spacing
       matrix->setTextColor(matrix->color555(colorFont[0], colorFont[1], colorFont[2]));
       matrix->print(textBoxData);
 
@@ -140,7 +140,7 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       char actionCmd; 
       uint8_t fontSize = 0; 
       unsigned short actionTime;
-
+      ledpannel->set_action_off(); /* previous action text off */
 
       String textBoxData;
       memcpy(textData, data, textNullLen);
@@ -164,17 +164,17 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       // draw some text!
       colorRgbFont = (int)(colorFont[0] << 16 | colorFont[1] << 8 | colorFont[2]);
       colorRgbScr = (int)(colorScr[0] << 16 | colorScr[1] << 8 | colorScr[2]);
-      ledpannel->set_action_off(); /* previous scrolling text off */
+      
       if(actionCmd == CMD_ACT_RIGHT_LEFT)
-        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_RIGHT_LEFT, actionTime);        
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), (fontSize * 11), CMD_ACT_RIGHT_LEFT, actionTime);        
       else if(actionCmd == CMD_ACT_LEFT_RIGHT)
-        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), 15 - (fontSize * 3), CMD_ACT_LEFT_RIGHT, actionTime);
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_display_width(), (fontSize * 11), CMD_ACT_LEFT_RIGHT, actionTime);
       else if(actionCmd == CMD_ACT_TOP_DOWN)
-        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 5, 0, CMD_ACT_TOP_DOWN, actionTime);  
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, 0, CMD_ACT_TOP_DOWN, actionTime);  
       else if(actionCmd == CMD_ACT_DOWN_TOP)
-        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 5, 32, CMD_ACT_DOWN_TOP, actionTime);  
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, 32, CMD_ACT_DOWN_TOP, actionTime);  
       else if(actionCmd == CMD_ACT_BLINK)
-        ledpannel->set_blink_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 5, 15 - (fontSize * 3), CMD_ACT_BLINK, actionTime);
+        ledpannel->set_blink_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, (fontSize * 11), CMD_ACT_BLINK, actionTime);
 
       free(textData);
       break;
@@ -186,7 +186,7 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       byte colorFont[3];
       int dataLen = len;
       char tempData[5];
-
+      ledpannel->set_action_off(); /* previous action text off */
       for(int i=0; i<(dataLen/5); i++)
       {
         memset(tempData, 0, sizeof(tempData));
@@ -208,12 +208,14 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
     
     case SET_SCR_CLEAR : 
     {
+      ledpannel->set_action_off(); /* previous action text off */
       Serial.println("screen clear");
       matrix->fillScreen(matrix->color444(0, 0, 0)); 
       break;
     }
     case SET_SCR_COLOR : 
     {
+      ledpannel->set_action_off(); /* previous action text off */
       Serial.println("screen clolor");
       byte ScrColor[3];
       memcpy(ScrColor, data, sizeof(ScrColor));      
@@ -222,8 +224,9 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
     }
     case SET_EXAM : 
     {
+      ledpannel->set_action_off(); /* previous action text off */
       if (data[0] == 0x01){
-        ledpannel->print_exam_1();
+        ledpannel->print_exam_1(); //test
       }
       else if (data[0] == 0x02){
         ledpannel->print_exam_2();
@@ -243,6 +246,10 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       else if (data[0] == 0x07){
         ledpannel->print_exam_7();
       }
+      else if (data[0] == 0x08){
+        ledpannel->print_exam_8();
+      }
+
       break;
     }
     default:
