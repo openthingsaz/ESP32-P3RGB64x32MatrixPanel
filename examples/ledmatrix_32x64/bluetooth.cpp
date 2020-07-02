@@ -9,7 +9,7 @@ BufferSerial buffser = BufferSerial();
 
 void Bluetooth::setup() 
 {
-  SerialBT.begin("LedMatrix"); //Bluetooth device name
+  SerialBT.begin("LedSlim"); //Bluetooth device name
 }
 
 int Bluetooth::check()
