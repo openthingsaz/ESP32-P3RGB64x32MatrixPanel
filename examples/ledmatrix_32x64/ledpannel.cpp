@@ -2,10 +2,11 @@
 #include "ledpannel.h"
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <P3RGB64x32MatrixPanel.h>
-#include <Fonts/BMHANNAPro8.h>
+#include <Fonts/BMHANNAPro8pt8b.h>
+//#include <Fonts/BMHANNAPro82.h>
+//#include <Fonts/FreeMono9pt7b.h>
+#include <Fonts/arial6pt7b.h>
 #include "command.h"
-
-
 
 // Input a value 0 to 24 to get a color value.
 // The colours are a transition r - g - b - back to r.
@@ -20,24 +21,40 @@ uint16_t Wheel(P3RGB64x32MatrixPanel* matrix, byte WheelPos) {
    return matrix->color444(0, WheelPos*2, 7 - WheelPos*2);
   }
 }
+void LedPannel::setupFont(uint8_t sel)
+{
+  if(sel == 0)
+  {
+    matrix->setFont(NULL);
+    matrix->setTextSize(1);     // size 1 == 8 pixels high
+    matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+    matrix->setAttribute(UTF8_ENABLE , false);
+  }
+  else if(sel == 1)
+  {
+    matrix->setFont(&BMHANNAPro8pt8b);  
+    matrix->setTextSize(1);     // size 1 == 8 pixels high
+    matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
 
+    matrix->setAttribute(UTF8_ENABLE , true);
+  }
+}
 void LedPannel::setup(P3RGB64x32MatrixPanel* mat)
 {
     matrix = mat;
     matrix->begin();
     // fill the screen with 'black'
-    matrix->fillScreen(matrix->color444(0, 0, 0));  
-    matrix->setFont(&BMHANNAPro8pt8b);  
-    matrix->setTextSize(1);     // size 1 == 8 pixels high
-    matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
-    matrix->setCursor(3, 10);    // start at top left, with 8 pixel of spacing
-    matrix->setTextColor(matrix->color444(7, 0, 0));
-    matrix->setAttribute(UTF8_ENABLE , true);
+    
 }
 
-uint16_t LedPannel::get_display_width(void)
+uint16_t LedPannel::get_disp_width(void)
 {
     return 64;
+}
+
+uint16_t LedPannel::get_disp_height(void)
+{
+    return 32;
 }
 
 
@@ -247,13 +264,11 @@ void LedPannel::print_exam_1(void)
       matrix->setCursor(8, 17);    // start at top left, with 8 pixel of spacing
     }
     matrix->setTextColor(Wheel(matrix, w));
-    delay(500);
+    delay(300);
     
     matrix->print(str[w]);  
   }
   matrix->println();
-
-  ////print_phone_num();
 }
 
 void LedPannel::print_exam_2(void)
@@ -290,7 +305,7 @@ void LedPannel::print_exam_2(void)
 
 void LedPannel::print_exam_3(void)
 {
-  for (int i=0; i<10; i++) 
+  for (int i=0; i<3; i++) 
   {
     matrix->fillScreen(0);
     // draw some text!
@@ -362,6 +377,36 @@ void LedPannel::print_exam_4(void)
   matrix->print('1');
 }
 
+void LedPannel::print_phone_num(void)
+{
+  
+  // print each letter with a rainbow color
+  matrix->setTextColor(matrix->color444(7,0,0));
+  matrix->print('0');
+  matrix->setTextColor(matrix->color444(7,4,0));
+  matrix->print('1');
+  matrix->setTextColor(matrix->color444(7,7,0));
+  matrix->print('0');
+
+  matrix->setTextColor(matrix->color444(4,7,0));
+  matrix->print('4');
+  matrix->setTextColor(matrix->color444(0,7,0));
+  matrix->print('4');
+  matrix->setTextColor(matrix->color444(0,7,7));
+  matrix->print('1');
+  matrix->setTextColor(matrix->color444(0,4,7));
+  matrix->print('8');
+  
+  matrix->setTextColor(matrix->color444(0,0,7));
+  matrix->print('4');
+  matrix->setTextColor(matrix->color444(4,0,7));
+  matrix->print('4');
+  matrix->setTextColor(matrix->color444(7,0,4));
+  matrix->print('5');
+  matrix->setTextColor(matrix->color444(7,0,4));
+  matrix->print('1');  
+}
+
 
 void LedPannel::print_exam_5(void)
 {
@@ -410,55 +455,132 @@ void LedPannel::print_exam_6(void)
   }
   matrix->println();
   matrix->println();
-  //print_phone_num();  
+  print_phone_num();  
 }
 
 void LedPannel::print_exam_7(void)
 {
-  // print each letter with a rainbow color
-  matrix->setTextColor(matrix->color444(7,0,0));
-  matrix->print('0');
-  matrix->setTextColor(matrix->color444(7,4,0));
-  matrix->print('1');
-  matrix->setTextColor(matrix->color444(7,7,0));
-  matrix->print('0');
+  // draw a pixel in solid white
+  matrix->drawPixel(0, 0, matrix->color444(15, 15, 15)); 
+  delay(500);
 
-  matrix->setTextColor(matrix->color444(4,7,0));
-  matrix->print('4');
-  matrix->setTextColor(matrix->color444(0,7,0));
-  matrix->print('4');
-  matrix->setTextColor(matrix->color444(0,7,7));
-  matrix->print('1');
-  matrix->setTextColor(matrix->color444(0,4,7));
-  matrix->print('8');
+  // fix the screen with green
+  matrix->fillRect(0, 0, matrix->width(), matrix->height(), matrix->color444(0, 15, 0));
+  delay(500);
+
+  // draw a box in yellow
+  matrix->drawRect(0, 0, matrix->width(), matrix->height(), matrix->color444(15, 15, 0));
+  delay(500);
   
-  matrix->setTextColor(matrix->color444(0,0,7));
-  matrix->print('4');
-  matrix->setTextColor(matrix->color444(4,0,7));
-  matrix->print('4');
-  matrix->setTextColor(matrix->color444(7,0,4));
-  matrix->print('5');
-  matrix->setTextColor(matrix->color444(7,0,4));
-  matrix->print('1');
+  // draw an 'X' in red
+  matrix->drawLine(0, 0, matrix->width()-1, matrix->height()-1, matrix->color444(15, 0, 0));
+  matrix->drawLine(matrix->width()-1, 0, 0, matrix->height()-1, matrix->color444(15, 0, 0));
+  delay(500);
   
+  // draw a blue circle
+  matrix->drawCircle(10, 10, 10, matrix->color444(0, 0, 15));
+  delay(500);
+  
+  // fill a violet circle
+  matrix->fillCircle(40, 21, 10, matrix->color444(15, 0, 15));
+  delay(500);
 }
 
 
 
 void LedPannel::print_exam_8(void) // japan language hiragana
 {
-  //matrix->setFont(&BMHANNAPro8pt8b);
+  uint8_t w = 0;
+  char ch[32]={0};
+  int len;
+  char str[] = "가천대 화이팅^^";
+
+  matrix->setFont(&BMHANNAPro8pt8b);  
   matrix->setTextSize(1);     // size 1 == 8 pixels high
   matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
-  matrix->setCursor(3, 3);    // start at top left, with 8 pixel of spacing
   matrix->setTextColor(matrix->color444(7, 0, 0));
   matrix->setAttribute(UTF8_ENABLE , true);
 
-  matrix->setCursor(1, 10);
-  String konnichiwa = "가나다라";  // Define a string using hiragana script
-  matrix->println(konnichiwa);          // Print string
-  konnichiwa = "간난바";  // Define a string using hiragana script
-  matrix->println(konnichiwa);          // Print string
-  delay(3000);
+  matrix->setCursor(10, 12);
+  len = strlen(str);
+  for (w=0; w<len; w++) 
+  {
+    if(w == 10) {
+      matrix->println();
+      matrix->setCursor(6, 27);    // start at top left, with 8 pixel of spacing
+    }
+    matrix->setTextColor(Wheel(matrix, w));
+    //delay(500);  
+    matrix->print(str[w]);  
+  }
+  matrix->println();
+  
+}
 
+void LedPannel::print_exam_9(void)
+{
+  uint8_t w = 0;
+  int len;
+  char str[] = "SNIP";
+  char str2[] = "nice to meet you.";
+  
+  // fill the screen with 'black'
+  matrix->fillScreen(matrix->color444(0, 0, 0));
+  // draw some text!
+  matrix->setTextSize(2);     // size 1 == 8 pixels high
+  matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+  matrix->setCursor(8, 2);    // start at top left, with 8 pixel of spacing
+  
+  len = strlen(str);
+  for (w=0; w<len; w++) 
+  {
+    matrix->setTextColor(Wheel(matrix, w));
+    delay(300); 
+    matrix->print(str[w]);  
+  }
+  matrix->println();
+
+  matrix->setTextSize(1);     // size 1 == 8 pixels high
+  matrix->setCursor(8, 17);    // start at top left, with 8 pixel of spacing  
+  len = strlen(str2);
+  for (w=0; w<len; w++) 
+  {
+    matrix->setTextColor(Wheel(matrix, w));
+    delay(300);  
+    matrix->print(str2[w]);  
+
+    if(w == 7) {
+      matrix->setCursor(5, 24);
+      //matrix->println();
+      //matrix->setCursor(6, 27);    // start at top left, with 8 pixel of spacing
+    }
+  }
+
+
+}
+
+
+
+void LedPannel::print_exam_a(void)
+{
+  // fill the screen with 'black'
+  matrix->fillScreen(matrix->color444(0, 0, 0));
+  // draw some text!
+  matrix->setTextSize(1);     // size 1 == 8 pixels high
+  matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+  
+  matrix->setCursor(5, 10);    // start at top left, with 8 pixel of spacing
+
+   String someText = "SomeText";//generated by a method
+   matrix->println(someText);
+    int16_t x1, y1;
+    uint16_t w1, h1; 
+    matrix->getTextBounds(someText , 0, 0, &x1, &y1, &w1, &h1);//error here
+
+
+    Serial.print("x1 : "); Serial.println(x1);
+    Serial.print("y1 : "); Serial.println(y1);
+    Serial.print("w1 : "); Serial.println(w1);
+    Serial.print("h1 : "); Serial.println(h1);
+  //print_phone_num();  
 }

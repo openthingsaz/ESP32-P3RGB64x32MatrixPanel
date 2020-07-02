@@ -26,9 +26,10 @@ public:
     void set_scroll_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
     void set_blink_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
     void blink_text(String text, uint8_t textSize, int fontColor, int scrColor, uint8_t startX, uint8_t startY, uint8_t cmd, uint16_t time);
-
+    void setupFont(uint8_t sel);
     void set_action_off(void);
-    uint16_t get_display_width(void);
+    uint16_t get_disp_width(void);
+    uint16_t get_disp_height(void);
     void command_excute(void);
     void print_exam_1(void);
     void print_exam_2(void);
@@ -38,6 +39,9 @@ public:
     void print_exam_6(void);
     void print_exam_7(void);
     void print_exam_8(void);
+    void print_exam_9(void);
+    void print_exam_a(void);    
+    void print_phone_num(void);
 };
 
 #endif
