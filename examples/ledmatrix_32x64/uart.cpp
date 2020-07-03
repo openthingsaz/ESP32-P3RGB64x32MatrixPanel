@@ -164,16 +164,27 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       colorRgbFont = (int)(colorFont[0] << 16 | colorFont[1] << 8 | colorFont[2]);
       colorRgbScr = (int)(colorScr[0] << 16 | colorScr[1] << 8 | colorScr[2]);
       
+      uint8_t startY;
+      if (fontSize == 1) {
+        startY = 10;
+      }
+      else  if (fontSize == 2) {
+        startY = 5;
+      }
+      else  if (fontSize == 3) {
+        startY = 0;
+      }
+
       if(actionCmd == CMD_ACT_RIGHT_LEFT)
-        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_disp_width(), (fontSize * 11), CMD_ACT_RIGHT_LEFT, actionTime);        
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_disp_width(), startY, CMD_ACT_RIGHT_LEFT, actionTime);        
       else if(actionCmd == CMD_ACT_LEFT_RIGHT)
-        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_disp_width(), (fontSize * 11), CMD_ACT_LEFT_RIGHT, actionTime);
+        ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, ledpannel->get_disp_width(), startY, CMD_ACT_LEFT_RIGHT, actionTime);
       else if(actionCmd == CMD_ACT_TOP_DOWN)
         ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, 0, CMD_ACT_TOP_DOWN, actionTime);  
       else if(actionCmd == CMD_ACT_DOWN_TOP)
         ledpannel->set_scroll_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, 32, CMD_ACT_DOWN_TOP, actionTime);  
       else if(actionCmd == CMD_ACT_BLINK)
-        ledpannel->set_blink_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, (fontSize * 11), CMD_ACT_BLINK, actionTime);
+        ledpannel->set_blink_text(textBoxData, fontSize, colorRgbFont, colorRgbScr, 0, startY, CMD_ACT_BLINK, actionTime);
 
       free(textData);
       break;
