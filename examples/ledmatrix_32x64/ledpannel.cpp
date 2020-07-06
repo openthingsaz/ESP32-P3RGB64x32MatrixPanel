@@ -2,10 +2,7 @@
 #include "ledpannel.h"
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <P3RGB64x32MatrixPanel.h>
-#include <Fonts/BMHANNAPro8pt8b.h>
-//#include <Fonts/BMHANNAPro82.h>
-//#include <Fonts/FreeMono9pt7b.h>
-#include <Fonts/arial6pt7b.h>
+#include <Fonts/GodoM6pt8b.h>
 #include "command.h"
 
 // Input a value 0 to 24 to get a color value.
@@ -32,7 +29,7 @@ void LedPannel::setupFont(uint8_t sel)
   }
   else if(sel == 1)
   {
-    matrix->setFont(&BMHANNAPro8pt8b);  
+    matrix->setFont(&GodoM6pt8b);  
     matrix->setTextSize(1);     // size 1 == 8 pixels high
     matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
 
@@ -495,7 +492,6 @@ void LedPannel::print_exam_8(void) // japan language hiragana
   int len;
   char str[] = "가천대 화이팅^^";
 
-  matrix->setFont(&BMHANNAPro8pt8b);  
   matrix->setTextSize(1);     // size 1 == 8 pixels high
   matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
   matrix->setTextColor(matrix->color444(7, 0, 0));
