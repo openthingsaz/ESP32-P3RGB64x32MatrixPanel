@@ -4,6 +4,10 @@
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <P3RGB64x32MatrixPanel.h>
 
+#define POINT1_NEXT_LINE_SIZE 12
+#define POINT2_NEXT_LINE_SIZE 22
+#define POINT3_NEXT_LINE_SIZE 32
+
 class LedPannel {
 private:
     P3RGB64x32MatrixPanel* matrix;
