@@ -97,7 +97,6 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
   switch (cmd) {
     case SET_TEXT : 
     {
-      
       int textLen = len-1-3-3; // -1 is font size, -3 is colorFont[3], -3 is colorScr[3], Only Text Box Data
       int textNullLen = textLen+1; /* For strings, +1 it must insert null at the end of the string. */
       char* textData = (char*)malloc(textNullLen);
@@ -124,7 +123,79 @@ void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, 
       matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
       matrix->setCursor(0, 0);    // start at top left, with 8 pixel of spacing
       matrix->setTextColor(matrix->color555(colorFont[0], colorFont[1], colorFont[2]));
-      matrix->print(textBoxData);
+      
+      int lineCnt = 0;
+      int fromIndex = -1;
+      int strEndIndex[3] = {0};
+
+      while ((fromIndex = textBoxData.indexOf("\n", fromIndex + 1)) >= 0) 
+      {
+        ++lineCnt;
+        if (lineCnt == 1)
+          strEndIndex[0] = fromIndex;
+        else if (lineCnt == 2)
+          strEndIndex[1] = fromIndex;
+        else if (lineCnt == 3)
+          strEndIndex[3] = fromIndex;
+      }
+      Serial.print("lineCnt :"); Serial.println(lineCnt);  
+      Serial.print("strEndIndex[0] :"); Serial.println(strEndIndex[0]);  
+      Serial.print("strEndIndex[1] :"); Serial.println(strEndIndex[1]);  
+      
+      String str1;
+      String str2;
+      String str3;
+      int16_t pointY = 0;
+
+      if (lineCnt == 0) 
+      {
+        matrix->print(textBoxData);
+      }
+      else if (lineCnt == 1)
+      {
+        str1 = textBoxData.substring(0, strEndIndex[0]);
+        str2 = textBoxData.substring(strEndIndex[0] + 1);
+        matrix->setCursor(0, 0);
+        matrix->print(str1);
+        if (fontSize == 1) {
+          pointY = POINT1_NEXT_LINE_SIZE;
+        }
+        else  if (fontSize == 2) {
+          pointY = POINT2_NEXT_LINE_SIZE;
+        }
+        else {
+          pointY = POINT3_NEXT_LINE_SIZE;
+        }
+        matrix->setCursor(0, pointY);
+        matrix->print(str2);
+      }
+      else if (lineCnt == 2)
+      {
+        str1 = textBoxData.substring(0, strEndIndex[0]);
+        str2 = textBoxData.substring(strEndIndex[0] + 1, strEndIndex[1]);
+        str3 = textBoxData.substring(strEndIndex[1] + 1);
+        matrix->setCursor(0, 0);
+        matrix->print(str1);
+
+        if (fontSize == 1) {
+          pointY = POINT1_NEXT_LINE_SIZE;
+        }
+        else  if (fontSize == 2) {
+          pointY = POINT2_NEXT_LINE_SIZE;
+        }
+        else {
+          pointY = POINT3_NEXT_LINE_SIZE;
+        }
+        matrix->setCursor(0, pointY);
+        matrix->print(str2);
+        matrix->setCursor(0, pointY*2);
+        matrix->print(str3);
+      }
+
+      Serial.print("str1 :"); Serial.println(str1);
+      Serial.print("str2 :"); Serial.println(str2);
+      Serial.print("str3 :"); Serial.println(str3);
+      
       free(textData);
       break;
     }
