@@ -181,10 +181,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
       blue = (uint8_t)(scrColor >> 0);
       matrix->fillScreen(matrix->color555(red, green, blue));
       matrix->setCursor(pos, startY);    // start at top left, with 8 pixel of spacing
-      for(int i=0; i<textLen; i++)
-      {
-        matrix->print(text[i]);
-      }
+      matrix->print(text);
       delay(time); 
     }
  }
@@ -197,10 +194,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
       blue = (uint8_t)(scrColor >> 0);
       matrix->fillScreen(matrix->color555(red, green, blue));
       matrix->setCursor(pos, startY);    // start at top left, with 8 pixel of spacing
-      for(int i=0; i<textLen; i++)
-      {
-        matrix->print(text[i]);
-      }
+      matrix->print(text);
       delay(time); 
    }
  }
@@ -213,10 +207,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
       blue = (uint8_t)(scrColor >> 0);
       matrix->fillScreen(matrix->color555(red, green, blue));
       matrix->setCursor(startX, pos);    // start at top left, with 8 pixel of spacing
-      for(int i=0; i<textLen; i++)
-      {
-        matrix->print(text[i]);
-      }
+      matrix->print(text);
       delay(time); 
     }
  }
@@ -229,10 +220,7 @@ void LedPannel::scroll_text(String text, uint8_t textSize, int fontColor, int sc
       blue = (uint8_t)(scrColor >> 0);
       matrix->fillScreen(matrix->color555(red, green, blue));
       matrix->setCursor(startX, pos);    // start at top left, with 8 pixel of spacing
-      for(int i=0; i<textLen; i++)
-      {
-        matrix->print(text[i]);
-      }
+      matrix->print(text);
       delay(time); 
     }
  }
