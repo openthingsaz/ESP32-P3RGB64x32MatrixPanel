@@ -92,9 +92,65 @@ boolean BufferSerial::recv_callback(BluetoothSerial* pSerialBT)
   return ret;
 }
 
+
+void set_text_one(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char* data, int len)
+{
+  int textLen = len-1-3-3; // -1 is font size, -3 is colorFont[3], -3 is colorScr[3], Only Text Box Data
+  int textNullLen = textLen+1; /* For strings, +1 it must insert null at the end of the string. */
+  char textData[50] = {0};
+  uint8_t fontSize = 0; 
+  uint8_t textGroupCount = 0; 
+  uint8_t textSize = 0; 
+  char colorFont[3]; 
+  int inx = 0;
+  String textBoxData;
+
+  for(int i=0; i<len; i++) {
+    Serial.print("data[i] :"); Serial.println(data[i], HEX);
+  }
+
+
+  fontSize = data[inx++];
+  textGroupCount = data[inx++];
+  
+  Serial.print("textGroupCount :"); Serial.println(textGroupCount);
+
+  for (int i=0; i<textGroupCount; i++){
+    textSize = data[inx++];
+    if (textSize > 0) {
+      memset(textData, 0, sizeof(textData));
+      for (int j=0; j<textSize; j++)
+        textData[j] = data[inx++];
+      textBoxData = textData;
+      memcpy(colorFont, &data[inx], sizeof(colorFont));
+      inx = inx + sizeof(colorFont);
+      Serial.print("textBoxData : "); Serial.println(textBoxData);
+      Serial.print("Font Color :"); Serial.print(colorFont[0], HEX); Serial.print(" "); Serial.print(colorFont[1], HEX); Serial.print(" "); Serial.print(colorFont[2], HEX); Serial.print(" ");
+      Serial.println();
+
+      matrix->fillScreen(matrix->color555(0, 0, 0));
+      matrix->setTextSize(fontSize);     // size 1 == 8 pixels high
+      matrix->setTextWrap(false); // Don't wrap at end of line - will do ourselves
+      matrix->setCursor(0, 0);    // start at top left, with 8 pixel of spacing
+      matrix->setTextColor(matrix->color555(colorFont[0], colorFont[1], colorFont[2]));
+      matrix->print(textBoxData);
+
+    }
+    else Serial.println("[Error] Text Size");
+  }
+
+  //free(textData);
+
+}
 void cmd_process(P3RGB64x32MatrixPanel* matrix, LedPannel* ledpannel, char cmd, char* data, int len)
 {
   switch (cmd) {
+    case SET_TEXT_ONE : 
+    {
+      set_text_one(matrix, ledpannel, data, len);
+      break;
+    }
+
     case SET_TEXT : 
     {
       int textLen = len-1-3-3; // -1 is font size, -3 is colorFont[3], -3 is colorScr[3], Only Text Box Data
