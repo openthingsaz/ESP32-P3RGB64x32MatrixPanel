@@ -6,6 +6,10 @@
 #define SET_TEXT_ACTION 0x22
 #define SET_SCR_CLEAR 0x31
 #define SET_SCR_COLOR 0x41
+#define SET_TEXT_ONE           0x51
+#define SET_TEXT_ONE_ACTION    0x52
+#define SET_FIRM_UPDATE         0x61
+#define GET_BOARD_INFO          0x91
 #define SET_EXAM 0x81
 
 #define CMD_ACT_LEFT_RIGHT 0x01
